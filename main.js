@@ -14,7 +14,17 @@ class Rectangle {
         this.width = width;
         this.height = height;
     }
-
+    contains(player) {
+        const left = this.x + player.radius,
+            right = this.x + this.width - player.radius,
+            top = this.y + player.radius,
+            bottom = this.y + this.height - player.radius;
+        return (
+            player.x >= left &&
+            player.x <= right &&
+            player.y >= top &&
+            player.y <= bottom)
+    }
     draw(ctx) {
         ctx.fillStyle = 'blue';
         ctx.fillRect(this.x, this.y, this.width, this.height);
@@ -22,10 +32,24 @@ class Rectangle {
 }
 
 class Player {
-    constructor(x, y, radius) {
+    constructor(x, y, radius,speed=2) {
         this.x = x;
         this.y = y;
         this.radius = radius;
+        this.direction = 'right'
+        this.speed= speed
+    }
+
+    mov() {
+        if (this.direction == 'right') {
+            this.x += this.speed
+        } else {
+            this.y += this.speed
+        }
+    }
+
+    changeDirection() {
+        this.direction = this.direction == 'right' ? 'down' : 'right'
     }
 
     draw(ctx) {
@@ -61,16 +85,26 @@ for (let i = 0; i < N; i++) {
         y += height;
     }
 }
-
-let isOnTrack = false;
-
-for (let i = 0; i < rectangles.length; i++) {
-    const rectangle = rectangles[i];
-    if(player.x > rectangle.x && player.x < rectangle.x + rectangle.width && player.y > rectangle.y && player.y < rectangle.y + rectangle.height) {
-        isOnTrack = true;
-        console.log('is on track');
+animate()
+function animate() {
+    player.mov()
+    let isOnTrack = false;
+    for (const rect of rectangles) {
+        if (rect.contains(player)) {
+            isOnTrack=true
+        }
     }
+    ctx.clearRect(0,0,cnv.width,cnv.height)
+    rectangles.forEach(rectangle => rectangle.draw(ctx));
+    player.draw(ctx);
+    requestAnimationFrame(animate)
 }
 
-rectangles.forEach(rectangle => rectangle.draw(ctx));
-player.draw(ctx);
+// for (let i = 0; i < rectangles.length; i++) {
+//     const rectangle = rectangles[i];
+//     if(player.x > rectangle.x && player.x < rectangle.x + rectangle.width && player.y > rectangle.y && player.y < rectangle.y + rectangle.height) {
+//         isOnTrack = true;
+//         console.log('is on track');
+//     }
+// }
+
